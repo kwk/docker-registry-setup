@@ -1,0 +1,116 @@
+# This config lists all the possible config options.
+#
+# To configure Docker Registry to talk to this server, put the following in the registry config file:
+#
+#  auth:
+#    token:
+#      realm: "https://127.0.0.1:5001/auth"
+#      service: "Docker registry"
+#      issuer: "Acme auth server"
+#      rootcertbundle: "/path/to/server.pem"
+
+server:  # Server settings.
+  # Address to listen on.
+  addr: ":5001"
+  # TLS certificate and key.
+  certificate: "/path/to/server.pem"
+  key: "/path/to/server.key"
+
+token:  # Settings for the tokens.
+  issuer: "Acme auth server"  # Must match issuer in the Registry config.
+  expiration: 900
+  # It is possible configure a different certificate for tokens.
+  # If not specified, server certificate is used.
+  # certificate: "..."
+  # key: "..."
+
+# Authentication methods. All are tried, any one returning success is sufficient.
+# At least one must be configured. If you want an unauthenticated public setup,
+# configure static user map with anonymous access.
+
+# Static user map.
+users:
+  # Password is specified as a BCrypt hash. Use htpasswd -B to generate.
+  "admin":
+    password: "$2y$05$LO.vzwpWC5LZGqThvEfznu8qhb5SGqvBSWY1J3yZ4AxtMRZ3kN5jC"  # badmin
+  "test":
+    password: "$2y$05$WuwBasGDAgr.QCbGIjKJaep4dhxeai9gNZdmBnQXqpKly57oNutya"  # 123
+  "": {}  # Allow anonymous (no "docker login") access.
+
+# Google authentication.
+# ==! NB: DO NOT ENTER YOUR GOOGLE PASSWORD AT "docker login". IT WILL NOT WORK.
+# Instead, Auth server maintains a database of Google authentication tokens.
+# Go to the server's port with you browser and follow the "Login with Google account" link.
+# Once signed in, you will get a throw-away password which you can use for Docker login.
+google_auth:
+  domain: "example.com"  # Optional. If set, only logins fromt his domain are accepted.
+  # client_id and client_secret for API access. Required.
+  # Follow instructions here: https://developers.google.com/identity/sign-in/web/devconsole-project
+  # NB: Make sure JavaScript origins are configured correcly.
+  client_id: "1223123456-somethingsomething.apps.googleusercontent.com"
+  # Either client_secret or client_secret_file is required. Use client_secret_file if you don't
+  # want to have sensitive information checked in.
+  # client_secret: "verysecret"
+  client_secret_file: "/path/to/client_secret.txt"
+  # Where to store server tokens. Required.
+  token_db: "/somewhere/to/put/google_tokens.ldb"
+  # How long to wait when talking to Google servers. Optional.
+  http_timeout: 10
+
+# LDAP authentication.
+# Authentication is performed by first binding to the server, looking up the user entry
+# by using the specified filter, and then re-binding using the matched DN and the password provided.
+ldap_auth:
+  addr: "ldap.example.com:389"
+  tls: true
+  # In case bind DN and password is required for querying user information,
+  # specify them here. Plain text password is read from the file.
+  bind_dn:
+  bind_password_file:
+  # User query settings. ${account} is expanded from auth request 
+  base: "o=example.com"
+  filter: "(&(uid=${account})(objectClass=person))"
+
+# ACL specifies who can do what. If the match section of an entry matches the
+# request, the set of allowed actions will be applied to the token request
+# and a ticket will be issued only for those of the requested actions that are
+# allowed by the rule.
+#  * It is possible to match on user's name ("account"), subject type ("type")
+#    and name ("name"; for type=repository which, at the timeof writing, is the
+#    only known subject type, this is the image name).
+#  * Matches are evaluated as shell file name patterns ("globs") by default,
+#    so "foobar", "f??bar", "f*bar" are all valid. For even more flexibility
+#    match patterns can be evaluated as regexes by enclosing them in //, e.g.
+#    "/(foo|bar)/".
+#  * ACL is evaluated in the order it is defined until a match is found.
+#  * Empty match clause matches anything, it only makes sense at the end of the
+#    list and can be used as a way of specifying default permissions.
+#  * Empty actions set means "deny everything". Thus, a rule with `actions: []`
+#    is in effect a "deny" rule.
+#  * A special set consisting of a single "*" action means "allow everything".
+#  * If no match is found the default is to deny the request.
+#
+# You can use the following variables from the ticket request in any field:
+#  * ${account} - the account name, currently the same as authenticated user's name.
+#  * ${service} - the service name, specified by auth.token.service in the registry config.
+#  * ${type} - the type of the entity, normally "repository".
+#  * ${name} - the name of the repository (i.e. image), e.g. centos.
+acl:
+  # Admin has full access to everything.
+  - match: {account: "admin"}
+    actions: ["*"]
+  # User "test" has full access to test-* images but nothing else.
+  - match: {account: "test", name: "test-*"}
+    actions: ["*"]
+  - match: {account: "test"}
+    actions: []
+  # All logged in users can pull all images.
+  - match: {account: "/.+/"}
+    actions: ["pull"]
+  # All logged in users can push all images that are in a namespace beginning with their name
+  - match: {account: "/.+/", name: "${account}/*"}
+    actions: ["*"]
+  # Anonymous users can pull "hello-world".
+  - match: {account: "", name: "hello-world"}
+    actions: ["pull"]
+  # Access is denied by default.

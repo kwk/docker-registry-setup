@@ -1,0 +1,23 @@
+auth:
+  image: cesanta/docker_auth
+  command: --v=2 --alsologtostderr /config/simple.yml
+  ports:
+    - "5001:5001"
+  volumes:
+    - "./auth/config:/config:ro"
+    - "./auth/logs:/logs:rw"
+    - "./certs:/certs:ro"
+
+registry:
+  image: registry:2
+  restart: always
+  ports:
+    - "5000:5000"
+  volumes:
+    - "./certs:/certs:ro"
+    - "./registry/conf:/etc/docker/registry:ro"
+    - "./registry/storage:/var/lib/registry:rw"
+      
+
+    
+  
