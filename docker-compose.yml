@@ -1,10 +1,11 @@
 auth:
   image: cesanta/docker_auth
-  command: --v=2 --alsologtostderr /config/simple.yml
+  entrypoint: /start.sh
   ports:
     - "5001:5001"
   volumes:
-    - "./auth/config:/config:ro"
+    - "./auth/start.sh:/start.sh:ro"
+    - "./auth/config:/config:ro" 
     - "./auth/logs:/logs:rw"
     - "./certs:/certs:ro"
 

@@ -1,0 +1,94 @@
+#-------------------------------------------------------------------------------
+# LDAP authentication.
+# See reference.yml for explanation for explanation of all options.
+#
+#  auth:
+#    token:
+#      realm: "https://127.0.0.1:5001/auth"
+#      service: "Docker registry"
+#      issuer: "Acme auth server"
+#      rootcertbundle: "/path/to/server.pem"
+#-------------------------------------------------------------------------------
+
+server:
+  addr: ":5001"
+  certificate: "/certs/domain.crt"
+  key: "/certs/domain.key"
+
+token:
+  issuer: "Acme auth server"  # Must match issuer in the Registry config.
+  expiration: 900
+
+#-------------------------------------------------------------------------------
+# LDAP authentication.
+# Authentication is performed by first binding to the server, looking up the
+# user entry by using the specified filter, and then re-binding using the
+# matched DN and the password provided.
+# To test your settings, I suggest to manually test them with the ldapsearch
+# command:
+#
+#     ldapsearch -v \
+#       -H ldap://YOUR_LDAP_HOST:YOUR_LDAP_PORT \
+#       -x \
+#       -D YOUR_EMAIL_ADDRESS \
+#       -b "dc=YOUR_COMPANY,dc=com" \
+#       -w $(cat ./auth/config/ldap_password.txt | tr -d '\r\n') \
+#       "(&(mail=YOUR_EMAIL_ADDRESS)(objectClass=person))"
+#
+# Adapt the command above and the settings below by replacing all the capital
+# words with your own settings.
+#-------------------------------------------------------------------------------
+
+ldap_auth:
+
+  addr: "YOUR_LDAP_HOST:YOUR_LDAP_PORT"
+
+  tls: true
+
+  # In case bind DN and password is required for querying user information,
+  # specify them here. If you have a service account for doing the LDAP
+  # authentication, enter it here.
+
+  bind_dn: YOUR_EMAIL_ADDRESS
+
+  # DO NOT CHANGE the following password file path. This is the output of your
+  # cleaned password file. We clean the password file by removing all newlines
+  # and carriage returns. Plain text password is read from the file.
+
+  bind_password_file: /tmp/ldap_password.txt.clean
+
+  # User query settings. ${account} is expanded from auth request
+
+  base: "dc=YOUR_COMPANY,dc=com"
+
+  filter: "(&(uid=${account})(objectClass=person))"
+
+
+#-------------------------------------------------------------------------------
+# The admin and test users can still be used even when LDAP is enabled.
+#-------------------------------------------------------------------------------
+
+users:
+  # Password is specified as a BCrypt hash. Use htpasswd -B to generate.
+  "admin":
+    password: "$2y$05$LO.vzwpWC5LZGqThvEfznu8qhb5SGqvBSWY1J3yZ4AxtMRZ3kN5jC"  # badmin
+  "test":
+    password: "$2y$05$WuwBasGDAgr.QCbGIjKJaep4dhxeai9gNZdmBnQXqpKly57oNutya"  # 123
+
+#-------------------------------------------------------------------------------
+# Access control lists
+#-------------------------------------------------------------------------------
+
+acl:
+  # Admin has full access to everything.
+  - match: {account: "admin"}
+    actions: ["*"]
+  
+  # User "user" can pull stuff.
+  - match: {account: "user"}
+    actions: ["pull"]
+    
+  # This will allow authenticated users to pull/push
+  - match:
+      account: /.+/
+    actions: ['*']

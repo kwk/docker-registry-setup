@@ -9,6 +9,8 @@ registry.
 
 # Preparation
 
+## Configure docker deamon
+
 These instructions only need to be done once. For the purpose of demonstation we
 will be running a registry on `localhost` and by default we must inform our
 docker client about any insecure registry that we want to be using. Here's how
@@ -18,7 +20,6 @@ it works:
 * Ensure your `DOCKER_OPTS` contains this option: `--insecure-registry 0.0.0.0:5000`.
   On an Ubuntu 14.04 you can find this option in your `/etc/default/docker` file.
 * Restart your docker service: `service docker restart`.
-
 
 # How to run
 
@@ -60,7 +61,7 @@ Please login prior to push:
 Username: admin
 Password: 
 Email: admin@example.com
-WARNING: login credentials saved in /home/kkleine/.docker/config.json
+WARNING: login credentials saved in /home/kwk/.docker/config.json
 Login Succeeded
 The push refers to a repository [0.0.0.0:5000/anyuser/busybox] (len: 1)
 d7057cb02084: Image successfully pushed 
@@ -68,10 +69,65 @@ cfa753dfea5e: Image successfully pushed
 latest: digest: sha256:a2d7824b17c3837e6cf1d8f0be99574956b7555a925851ff192aa4e4e7cafa6e size: 3214
 ```
 
- These password
-combinations are defined in `auth/config/simple.yml`:
+These password combinations are defined in `auth/config/simple.yml`:
 
   * admin:badmin    (can push and pull)
   * test:123   (can only pull)
+
+**Notice** that on a second pull or push you won't have to enter your
+credentials again because they have been saved here: `~/.docker/config.json`.
+Remove this file if you want to force another prompt for username and password.
+
+# If you want LDAP authentication...
+
+## Test that LDAP auth is working
+
+This will connect to the LDAP and query all information below the base (`-b`).
+The user that is used to authenticate is called `YOUR_SERVICE_ACCOUNT`
+and the password is taken from the file `./auth/config/ldap_password.txt`. But
+since most editors append a newline (`\n`) or carriage return (`\r`) we first
+remove those characters. The user `YOUR_SERVICE_ACCOUNT` is a service account,
+but if you don't have one you can also try to login with your own email address
+(`-D FIRSTNAME.LASTNAME@YOUR_COMPANY.com`).
+
+```bash
+ldapsearch -v \
+  -H ldap://YOUR_LDAP_HOST:YOUR_LDAP_PORT \
+  -x \
+  -D YOUR_SERVICE_ACCOUNT \
+  -b "dc=YOUR_COMPANY,dc=com" \
+  -w $(cat ./auth/config/ldap_password.txt | tr -d '\r\n')
+```
+
+To find the entry for your own emailaddress, simply write:
+
+```bash
+ldapsearch -v \
+  -H ldap://YOUR_LDAP_HOST:YOUR_LDAP_PORT \
+  -x \
+  -D YOUR_SERVICE_ACCOUNT \
+  -b "dc=YOUR_COMPANY,dc=com" \
+  -w $(cat ./auth/config/ldap_password.txt | tr -d '\r\n') \
+  "(&(mail=FIRSTNAME.LASTNAME@YOUR_COMPANY.com)(objectClass=person))"
+```
+
+and appropriately replace `FIRSTNAME.LASTNAME@YOUR_COMPANY.com` with your own
+email address.
+
+## To use LDAP as your authentication backend...
+
+1. If your LDAP server requires you to have certificates installed on the
+machine that makes the query, copy those certificates to 
+`auth/config/ldap_certificates/`. I've modified the auth container a bit by
+introducing a start script that automatically searches for files in that
+directory and update the cert store of the container on every start.
+2. Copy the `auth/config/ldap_auth.yml.template` to `auth/config/config.yml` and
+adjust all the settings inside to match the LDAP configuration that you have
+validated above.
+3. Put the password for the service account in this file: 
+`auth/config/ldap_password.txt`.
+4. Restart the registry and auth server: `docker-compose up -d --force-recreate`
+5. Try pushing an image to the registry and login with your LDAP credentials.
+
 
 Have fun!

@@ -1,3 +1,5 @@
-./registry/storage/*
-./auth/logs
+registry/storage/*
+auth/logs
+auth/config/ldap_certificates/*
+auth/config/ldap_auth.yml.custom
 *~
