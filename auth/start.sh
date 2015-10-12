@@ -7,5 +7,11 @@ update-ca-certificates
 # Replace newline and carriage returns in password file
 cat /config/ldap_password.txt | tr -d '\r\n' > /tmp/ldap_password.txt.clean
 
+# If we see a custom config file, we load that instead of the default one
+CONF_PATH=/config/config.yml
+if [ -f $CONF_PATH.custom ]; then
+  CONF_PATH=$CONF_PATH.custom
+fi
+
 # Start the auth server
-/auth_server -v=2 -alsologtostderr=true -log_dir=/logs /config/ldap_auth.yml
+/auth_server -v=2 -alsologtostderr=true -log_dir=/logs $CONF_PATH
