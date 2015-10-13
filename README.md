@@ -131,5 +131,14 @@ LDAP configuration that you have validated above. The file
 4. Restart the registry and auth server: `docker-compose up -d --force-recreate`
 5. Try pushing an image to the registry and login with your LDAP credentials.
 
+# Test your auth server
+
+Replace `USERNAME` and `PASSWORD` with credentials of somebody who wants to
+authenticate against LDAP. You should get an `HTTP 200 OK` response containing
+a JSON Web `token` if everything worked correctly.
+
+```
+curl -H "Authorization: Basic $(echo "USERNAME:PASSWORD" | base64)" -vk "https://127.0.0.1:5001/auth?service=Docker%20registry&scope=registry:catalog:*"
+```
 
 Have fun!
