@@ -22,6 +22,6 @@ health:
 auth:
   token:
     realm: "https://0.0.0.0:5001/auth"
-    service: "Docker registry"
+    service: "my.docker.registry"
     issuer: "Acme auth server"
     rootcertbundle: /certs/domain.crt

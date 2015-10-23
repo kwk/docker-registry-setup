@@ -1,14 +1,3 @@
-auth:
-  image: cesanta/docker_auth
-  entrypoint: /start.sh
-  ports:
-    - "5001:5001"
-  volumes:
-    - "./auth/start.sh:/start.sh:ro"
-    - "./auth/config:/config:ro" 
-    - "./auth/logs:/logs:rw"
-    - "./certs:/certs:ro"
-
 registry:
   image: registry:2
   restart: always
@@ -18,7 +7,21 @@ registry:
     - "./certs:/certs:ro"
     - "./registry/conf:/etc/docker/registry:ro"
     - "./registry/storage:/var/lib/registry:rw"
-      
 
-    
-  
+auth:
+  image: cesanta/docker_auth
+  entrypoint: /start.sh
+  ports:
+    - "5001:5001"
+  links:
+    - ldap:ldap
+  volumes:
+    - "./auth/start.sh:/start.sh:ro"
+    - "./auth/config:/config:ro" 
+    - "./auth/logs:/logs:rw"
+    - "./certs:/certs:ro"
+
+ldap:
+  build: ./ldap
+  expose:
+    - "389"

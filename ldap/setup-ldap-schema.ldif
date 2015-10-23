@@ -1,0 +1,115 @@
+##  # The Organization
+##  dn: dc=example,dc=com
+##  objectClass: dcObject
+##  objectClass: organization
+##  o: Example dc: example
+
+# The organizational unit philosophs
+dn: ou=philosophs,dc=example,dc=com
+objectClass: organizationalUnit
+ou: philosophs
+
+# The organizational unit musicians
+dn: ou=musicians,dc=example,dc=com
+objectClass: organizationalUnit
+ou: musicians
+
+# The organizational unit it
+dn: ou=it,dc=example,dc=com
+objectClass: organizationalUnit
+ou: it
+
+# User account Immanuel Kant
+dn: uid=kant,ou=philosophs,dc=example,dc=com
+cn: Immanuel Kant
+givenName: Immanuel
+sn: Kant
+uid: kant
+uidNumber: 10001
+gidNumber: 10001
+homeDirectory: /home/kant
+mail: kant@example.com
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+loginShell: /bin/bash
+userPassword: {CRYPT}*
+
+# User account Arthur Schopenhauer
+dn: uid=schopenhauer,ou=philosophs,dc=example,dc=com
+cn: Arthur Schopenhauer
+givenName: Arthur
+sn: Schopenhauer
+uid: schopenhauer
+uidNumber: 10002
+gidNumber: 10002
+homeDirectory: /home/schopenhauer
+mail: schopenhauer@example.com
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+loginShell: /bin/bash
+userPassword: {CRYPT}*
+
+# User account Wolfgang Amadeus Mozart
+dn: uid=mozart,ou=musicians,dc=example,dc=com
+cn: Wolfgang Amadeus Mozart
+givenName: Wolfgang Amadeus
+sn: Mozart
+uid: mozart
+uidNumber: 10003
+gidNumber: 10003
+homeDirectory: /home/mozart
+mail: mozart@example.com
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+loginShell: /bin/bash
+userPassword: {CRYPT}*
+
+# User account Johann Sebastian Bach
+dn: uid=bach,ou=musicians,dc=example,dc=com
+cn: Johann Sebastian Bach
+givenName: Johann Sebastian
+sn: Bach
+uid: bach
+uidNumber: 10004
+gidNumber: 10004
+homeDirectory: /home/bach
+mail: bach@example.com
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+loginShell: /bin/bash
+userPassword: {CRYPT}*
+
+# Service account
+dn: uid=serviceaccount,ou=it,dc=example,dc=com
+cn: Service Account
+givenName: Service
+sn: Account
+uid: serviceaccount
+uidNumber: 10005
+gidNumber: 10005
+homeDirectory: /home/serviceaccount
+mail: serviceaccount@example.com
+objectClass: top
+objectClass: posixAccount
+objectClass: shadowAccount
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+loginShell: /bin/bash
+userPassword: {CRYPT}*

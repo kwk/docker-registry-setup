@@ -4,8 +4,7 @@ This project is intended for people like me who need to get their hands on a
 piece of technology before they can fully grasp it.
 
 The purpose of this project is rather educational. I'll show you how you can
-setup a docker registry v2 and an authorization server to be used with the
-registry.
+setup a docker registry v2 and an authorization server with an LDAP backend.
 
 # Preparation
 
@@ -79,6 +78,22 @@ credentials again because they have been saved here: `~/.docker/config.json`.
 Remove this file if you want to force another prompt for username and password.
 
 # If you want LDAP authentication...
+
+I've included an LDAP server in the `docker-compose.yml` that is also used for
+authentication. This is the hierarchy:
+
+```
+dc
+ |_philosophs
+ |          |_schopenhauer
+ |          |_kant
+ |_musicians
+           |_mozart
+           |_bach
+```
+
+All musicians are allowed to login (see `base: "ou=musicians,dc=example,dc=com"` in
+`auth/config/config.yml`.
 
 ## Test that LDAP auth is working
 
