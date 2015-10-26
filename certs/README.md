@@ -33,6 +33,7 @@ Email Address []:admin@registry.example.com
 
 The `auth.crt` and `auth.key` files have been created using this command:
 
+```
 openssl req -newkey rsa:4096 -nodes -sha256 -keyout auth.key -x509 -days 365 -out auth.crt
 Generating a 4096 bit RSA private key
 ................................................................................................................................................................................................................++
@@ -53,6 +54,7 @@ Organization Name (eg, company) [Internet Widgits Pty Ltd]:Example Company
 Organizational Unit Name (eg, section) []:Example Organizational Unit
 Common Name (e.g. server FQDN or YOUR name) []:auth.example.com
 Email Address []:admin@auth.example.com
+```
 
 # How to list the contents of one of the certificates
 
