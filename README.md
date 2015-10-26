@@ -179,28 +179,28 @@ ldapsearch -v \
 and appropriately replace `FIRSTNAME.LASTNAME@YOUR_COMPANY.com` with your own
 email address.
 
-## To use LDAP as your authentication backend...
+## How to use your own LDAP as your authentication backend...
 
-1. If your LDAP server requires you to have certificates installed on the
-machine that makes the query, copy those certificates to 
+1. Chances are that your own LDAP server requires you to have certificates
+installed on the machine that binds to LDAP. Simply copy those certificates to 
 `auth/config/ldap_certificates/`. I've modified the auth container a bit by
 introducing a start script that automatically searches for files in that
-directory and update the cert store of the container on every start.
-2. Copy the `auth/config/ldap_auth.yml.template` to 
-`auth/config/config.yml.custom` and adjust all the settings inside to match the
-LDAP configuration that you have validated above. The file
-`auth/config/config.yml.custom` will be loaded instead of
-`auth/config/config.yml` whenever it is present.
+that directory and updates the cert store of the container on every start.
+2. Copy the `auth/config/config.yml` to `auth/config/config.yml.custom` and
+adjust all the settings inside to match the LDAP configuration that you have
+validated above. The file `auth/config/config.yml.custom` will be loaded instead
+of `auth/config/config.yml` whenever it is present.
 3. Put the password for the service account in this file: 
 `auth/config/ldap_password.txt`.
 4. Restart the registry and auth server: `docker-compose up -d --force-recreate`
 5. Try pushing an image to the registry and login with your LDAP credentials.
 
-# Test your auth server
+# Test the server
 
-Replace `USERNAME` and `PASSWORD` with credentials of somebody who wants to
-authenticate against LDAP. You should get an `HTTP 200 OK` response containing
-a JSON Web `token` if everything worked correctly.
+Replace `USERNAME` and `PASSWORD` below with credentials of somebody who wants
+to authenticate against LDAP (eg. `mozart` and `password`). You should get an
+`HTTP 200 OK` response containing a JSON Web `token` if everything worked
+correctly.
 
 ```
 curl -H "Authorization: Basic $(echo "USERNAME:PASSWORD" | base64)" -vk "https://127.0.0.1:5001/auth?service=Docker%20registry&scope=registry:catalog:*"
