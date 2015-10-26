@@ -44,10 +44,15 @@ acl:
     actions: ["*"]
   
   # User "user" can pull stuff.
-  - match: {account: "user"}
+  - match: {account: "test"}
     actions: ["pull"]
     
   # This will allow authenticated users to pull/push
   - match:
       account: /.+/
     actions: ['*']
+  
+  # The user "serviceaccount" (from LDAP) may not perform any docker actions
+  # like push or pull.
+  - match: {account: "serviceaccount"}
+    actions: []

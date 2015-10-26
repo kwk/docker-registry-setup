@@ -5,12 +5,83 @@ piece of technology before they can fully grasp it.
 
 The purpose of this project is rather educational. I'll show you how you can
 setup a docker registry v2 and an authorization server with an LDAP backend.
+In fact, everything is already setup for you to run. There's a docker container
+for the registry, the JWT auth server and the LDAP server. Feel free to connect
+to your company LDAP if you want by making adjustments to the auth server's
+config file (`auth/config/config.yml`). Just like that you can replace this
+setup piece by piece to suite your needs.
+
+Here's a graphic showing all the containers and how they talk to each other:
+
+![](https://raw.githubusercontent.com/kwk/docker-registry-setup/master/docs/setup.png)
+
+1. Attempt to begin a push/pull operation with the registry.
+2. If the registry requires authorization it will return a 401 Unauthorized HTTP response with information on how to authenticate.
+3. The registry client makes a request to the authorization service for a Bearer token.
+4. The authorization server makes a request to the LDAP server to check if a user exists. We use a service account to connect to the LDAP server.
+5. The LDAP server returns an answer to the user lookup.
+6. The authorization service returns an opaque Bearer token representing the client's authorized access.
+7. The client retries the original request with the Bearer token embedded in the request's Authorization header.
+8. The Registry authorizes the client by validating the Bearer token and the claim set embedded within it and begins the push/pull session as usual.
+
+[Here](https://github.com/docker/distribution/blob/master/docs/spec/auth/token.md)
+you can read more about the Docker v2 registry authorization process.
+
+# How are authentication and authorization configured
+
+**NOTE** Remember, that *authentication* ensures that you are who you claim t
+be. *Authorization* on the other hand defines rules of what somebody is
+(dis)allowed to do.
+
+The auth server is configured to try all authentication methods that
+have been specified in `auth/config/config.yml`. Currently LDAP and a static
+list of users/passwords are configured
+
+These password combinations are defined statically:
+
+  * admin:badmin (can push and pull)
+  * test:123 (can only pull)
+
+I've included an LDAP server in the `docker-compose.yml` that is also used for
+authentication. This is the LDAP hierarchy:
+
+```
+com
+  |_example
+          |
+          |_philosophs
+          |         |_schopenhauer
+          |         |_kant
+          |_musicians
+          |         |_mozart
+          |         |_bach
+          |_it
+             |_serviceaccount
+```
+
+(This hierarchy is described here: `ldap/setup-ldap-schema.ldif`.)
+
+All musicians (`mozart` and `bach`) are usernames that are authorized to login
+using the password `password` and they can all push and pull images to or from
+the registry. The philosophs (`schopenhauer` and `kant`) are not used and will
+not function with the current LDAP search base (see
+`base: "ou=musicians,dc=example,dc=com"` in `auth/config/config.yml`).
+
+I use the `serviceaccount` username to connect to bind to LDAP from the auth
+server. It 
+
+**Notice** that on a successful second pull or push you won't have to enter your
+credentials again because they have been saved here: `~/.docker/config.json`.
+Remove this file if you want to force another prompt for username and password.
 
 # Preparation
 
+**IMPORTANT** Read these instructions to get up and running with your own
+already configured docker registry v2 deployment.
+
 ## Configure docker deamon
 
-These instructions only need to be done once. For the purpose of demonstation we
+These instructions only need to be executed once. For the purpose of demonstation we
 will be running a registry on `localhost` and by default we must inform our
 docker client about any insecure registry that we want to be using. Here's how
 it works:
@@ -30,6 +101,8 @@ git clone https://github.com/kwk/docker-registry-setup.git
 cd docker-registry-setup
 
 # Fire up the registry and the auth server as containers
+# Notice that the docker registry is configured with a persistent storage volume
+# from the docker host, hence --force-recreate will not wipe this storage for you.
 docker-compose up -d --force-recreate
 
 # Pull an image from the offical docker hub that we want push to our own secured registry
@@ -50,50 +123,25 @@ mv -b ~/.docker/config.json ~/.docker/config.json.orig
 docker push 0.0.0.0:5000/anyuser/busybox
 ```
 
-And voila, you'll be prompted for a username and a password.
+And voila, you'll be prompted for a username and a password. Let's use the
+username `mozart` (from the *musicians* organization unit in LDAP) and the
+password `password`. The email address doesn't matter this much.
 
 ```
 The push refers to a repository [0.0.0.0:5000/anyuser/busybox] (len: 1)
 d7057cb02084: Image push failed 
 
 Please login prior to push:
-Username: admin
+Username: mozart
 Password: 
-Email: admin@example.com
-WARNING: login credentials saved in /home/kwk/.docker/config.json
+Email: mozart@example.com
+WARNING: login credentials saved in /home/YOU/.docker/config.json
 Login Succeeded
 The push refers to a repository [0.0.0.0:5000/anyuser/busybox] (len: 1)
 d7057cb02084: Image successfully pushed 
 cfa753dfea5e: Image successfully pushed 
-latest: digest: sha256:a2d7824b17c3837e6cf1d8f0be99574956b7555a925851ff192aa4e4e7cafa6e size: 3214
+latest: digest: sha256:15eda5ab78f31658ab922650eebe9da9ccc6c16462d5ef0bfd6d9f29b8800569 size: 2743
 ```
-
-These password combinations are defined in `auth/config/simple.yml`:
-
-  * admin:badmin    (can push and pull)
-  * test:123   (can only pull)
-
-**Notice** that on a second pull or push you won't have to enter your
-credentials again because they have been saved here: `~/.docker/config.json`.
-Remove this file if you want to force another prompt for username and password.
-
-# If you want LDAP authentication...
-
-I've included an LDAP server in the `docker-compose.yml` that is also used for
-authentication. This is the hierarchy:
-
-```
-dc
- |_philosophs
- |          |_schopenhauer
- |          |_kant
- |_musicians
-           |_mozart
-           |_bach
-```
-
-All musicians are allowed to login (see `base: "ou=musicians,dc=example,dc=com"` in
-`auth/config/config.yml`.
 
 ## Test that LDAP auth is working
 
@@ -106,24 +154,26 @@ but if you don't have one you can also try to login with your own email address
 (`-D FIRSTNAME.LASTNAME@YOUR_COMPANY.com`).
 
 ```bash
+LDAP_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' dockerregistrysetup_ldap_1)
 ldapsearch -v \
-  -H ldap://YOUR_LDAP_HOST:YOUR_LDAP_PORT \
+  -H ldap://$LDAP_IP:389 \
   -x \
-  -D YOUR_SERVICE_ACCOUNT \
-  -b "dc=YOUR_COMPANY,dc=com" \
-  -w $(cat ./auth/config/ldap_password.txt | tr -d '\r\n')
+  -D "uid=serviceaccount,ou=it,dc=example,dc=com" \
+  -b "ou=musicians,dc=example,dc=com" \
+  -w password
 ```
 
-To find the entry for your own emailaddress, simply write:
+To find and entry based on a user's email address execute this command:
 
 ```bash
+LDAP_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' dockerregistrysetup_ldap_1)
 ldapsearch -v \
-  -H ldap://YOUR_LDAP_HOST:YOUR_LDAP_PORT \
+  -H ldap://$LDAP_IP:389 \
   -x \
-  -D YOUR_SERVICE_ACCOUNT \
-  -b "dc=YOUR_COMPANY,dc=com" \
-  -w $(cat ./auth/config/ldap_password.txt | tr -d '\r\n') \
-  "(&(mail=FIRSTNAME.LASTNAME@YOUR_COMPANY.com)(objectClass=person))"
+  -D "uid=serviceaccount,ou=it,dc=example,dc=com" \
+  -b "ou=musicians,dc=example,dc=com" \
+  -w password \
+  "(&(mail=mozart@example.com)(objectClass=person))"
 ```
 
 and appropriately replace `FIRSTNAME.LASTNAME@YOUR_COMPANY.com` with your own
