@@ -2,7 +2,7 @@
 
 **NOTE:** You should replace these files with your own!!!
 
-# Certificates for the registry
+# Certificate and key for the registry
 
 The `registry.crt` and `registry.key` files have been created using this command:
 
@@ -29,7 +29,7 @@ Common Name (e.g. server FQDN or YOUR name) []:registry.example.com
 Email Address []:admin@registry.example.com
 ```
 
-# Certificates for the auth server
+# Certificate and key for the auth server
 
 The `auth.crt` and `auth.key` files have been created using this command:
 
