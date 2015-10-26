@@ -195,7 +195,7 @@ of `auth/config/config.yml` whenever it is present.
 4. Restart the registry and auth server: `docker-compose up -d --force-recreate`
 5. Try pushing an image to the registry and login with your LDAP credentials.
 
-# Test the server
+# Test the auth server
 
 Replace `USERNAME` and `PASSWORD` below with credentials of somebody who wants
 to authenticate against LDAP (eg. `mozart` and `password`). You should get an
