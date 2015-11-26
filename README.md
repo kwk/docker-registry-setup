@@ -246,4 +246,8 @@ body like this:
 {"repositories":["anyuser/busybox"]}
 ```
 
+# Plans
+
+- [ ] Integrate a frontend
+
 Have fun!
