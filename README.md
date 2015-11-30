@@ -183,7 +183,7 @@ email address.
 
 1. Chances are that your own LDAP server requires you to have certificates
 installed on the machine that binds to LDAP. Simply copy those certificates to 
-`auth/config/ldap_certificates/`. I've modified the auth container a bit by
+`auth/config/ldap_certificates/`. I've [modified the auth container](https://github.com/kwk/docker-registry-setup/blob/master/auth/start.sh#L4) a bit by
 introducing a start script that automatically searches for files in that
 that directory and updates the cert store of the container on every start.
 2. Copy the `auth/config/config.yml` to `auth/config/config.yml.custom` and
