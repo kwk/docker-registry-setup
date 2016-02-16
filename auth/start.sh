@@ -8,7 +8,7 @@ update-ca-certificates
 cat /config/ldap_password.txt | tr -d '\r\n' > /tmp/ldap_password.txt.clean
 
 # If we see a custom config file, we load that instead of the default one
-CONF_PATH=/config/config.yml
+CONF_PATH=/config/auth_config.yml
 if [ -f $CONF_PATH.custom ]; then
   CONF_PATH=$CONF_PATH.custom
 fi
