@@ -26,7 +26,7 @@ ldap_auth:
   # specify them here. Plain text password is read from the file.
   bind_dn: "uid=serviceaccount,ou=it,dc=example,dc=com"
   # Make sure you remove newlines and carriage returns from the password file.
-  bind_password_file: /tmp/ldap_password.txt.clean
+  bind_password_file: /config/ldap_password.txt
   # User query settings. ${account} is expanded from auth request 
   base: "ou=musicians,dc=example,dc=com"
   filter: "(&(uid=${account})(objectClass=organizationalPerson))"
