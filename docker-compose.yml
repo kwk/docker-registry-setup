@@ -10,7 +10,6 @@ registry:
 
 auth:
   image: cesanta/docker_auth
-  entrypoint: /start.sh
   ports:
     - "5001:5001"
   links:
