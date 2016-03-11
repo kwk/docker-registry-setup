@@ -143,7 +143,7 @@ cfa753dfea5e: Image successfully pushed
 latest: digest: sha256:15eda5ab78f31658ab922650eebe9da9ccc6c16462d5ef0bfd6d9f29b8800569 size: 2743
 ```
 
-If you are not automatically prompted to log in, you can explicitly log in before pushing, with ``docker login 0.0.0.0:5000``.
+If you are not automatically prompted to log in, you can explicitly log in before pushing, with `docker login 0.0.0.0:5000`.
 
 ## Test that LDAP auth is working
 
