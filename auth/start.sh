@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Copy over certificates to correct place and update certificate storage
 find "/config/ldap_certificates" -type f -exec cp -fv {} /usr/local/share/ca-certificates/ \;

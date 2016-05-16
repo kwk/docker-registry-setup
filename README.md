@@ -186,10 +186,10 @@ installed on the machine that binds to LDAP. Simply copy those certificates to
 `auth/config/ldap_certificates/`. I've [modified the auth container](https://github.com/kwk/docker-registry-setup/blob/master/auth/start.sh#L4) a bit by
 introducing a start script that automatically searches for files in that
 that directory and updates the cert store of the container on every start.
-2. Copy the `auth/config/config.yml` to `auth/config/config.yml.custom` and
+2. Copy the `auth/config/auth_config.yml` to `auth/config/auth_config.yml.custom` and
 adjust all the settings inside to match the LDAP configuration that you have
-validated above. The file `auth/config/config.yml.custom` will be loaded instead
-of `auth/config/config.yml` whenever it is present.
+validated above. The file `auth/config/auth_config.yml.custom` will be loaded instead
+of `auth/config/auth_config.yml` whenever it is present.
 3. Put the password for the service account in this file: 
 `auth/config/ldap_password.txt`.
 4. Restart the registry and auth server: `docker-compose up -d --force-recreate`
