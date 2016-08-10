@@ -163,7 +163,7 @@ ldapsearch -v \
   -w password
 ```
 
-To find and entry based on a user's email address execute this command:
+To find an entry based on a user's email address execute this command:
 
 ```bash
 LDAP_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' dockerregistrysetup_ldap_1)
