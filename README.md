@@ -68,7 +68,7 @@ not function with the current LDAP search base (see
 `base: "ou=musicians,dc=example,dc=com"` in `auth/config/config.yml`).
 
 I use the `serviceaccount` username to connect to bind to LDAP from the auth
-server. It 
+server. It
 
 **Notice** that on a successful second pull or push you won't have to enter your
 credentials again because they have been saved here: `~/.docker/config.json`.
@@ -129,17 +129,17 @@ password `password`. The email address doesn't matter this much.
 
 ```
 The push refers to a repository [0.0.0.0:5000/anyuser/busybox] (len: 1)
-d7057cb02084: Image push failed 
+d7057cb02084: Image push failed
 
 Please login prior to push:
 Username: mozart
-Password: 
+Password:
 Email: mozart@example.com
 WARNING: login credentials saved in /home/YOU/.docker/config.json
 Login Succeeded
 The push refers to a repository [0.0.0.0:5000/anyuser/busybox] (len: 1)
-d7057cb02084: Image successfully pushed 
-cfa753dfea5e: Image successfully pushed 
+d7057cb02084: Image successfully pushed
+cfa753dfea5e: Image successfully pushed
 latest: digest: sha256:15eda5ab78f31658ab922650eebe9da9ccc6c16462d5ef0bfd6d9f29b8800569 size: 2743
 ```
 
@@ -182,7 +182,7 @@ email address.
 ## How to use your own LDAP as your authentication backend...
 
 1. Chances are that your own LDAP server requires you to have certificates
-installed on the machine that binds to LDAP. Simply copy those certificates to 
+installed on the machine that binds to LDAP. Simply copy those certificates to
 `auth/config/ldap_certificates/`. I've [modified the auth container](https://github.com/kwk/docker-registry-setup/blob/master/auth/start.sh#L4) a bit by
 introducing a start script that automatically searches for files in that
 that directory and updates the cert store of the container on every start.
@@ -190,7 +190,7 @@ that directory and updates the cert store of the container on every start.
 adjust all the settings inside to match the LDAP configuration that you have
 validated above. The file `auth/config/auth_config.yml.custom` will be loaded instead
 of `auth/config/auth_config.yml` whenever it is present.
-3. Put the password for the service account in this file: 
+3. Put the password for the service account in this file:
 `auth/config/ldap_password.txt`.
 4. Restart the registry and auth server: `docker-compose up -d --force-recreate`
 5. Try pushing an image to the registry and login with your LDAP credentials.
@@ -203,7 +203,7 @@ to authenticate against LDAP (eg. `mozart` and `password`). You should get an
 correctly.
 
 ```
-curl -H "Authorization: Basic $(echo "USERNAME:PASSWORD" | base64)" -vk "https://127.0.0.1:5001/auth?service=Docker%20registry&scope=registry:catalog:*"
+curl --user "USERNAME:PASSWORD" -vk "https://127.0.0.1:5001/auth?service=Docker%20registry&scope=registry:catalog:*"
 ```
 
 # Manual token-based workflow to list repositories
@@ -229,7 +229,7 @@ scope=$(echo $wwwAuth | grep -o '\(scope\)="[^"]*"' | cut -d '"' -f 2)
 authURL="$realm?service=$service&scope=$scope"
 
 # Query the auth server to get a token
-token=$(curl -ks -H "Authorization: Basic $(echo -n "mozart:password" | base64)" "$authURL")
+token=$(curl -ks --user "mozart:password" "$authURL")
 
 # Get the bare token from the JSON string: {"token": "...."}
 token=$(echo $token | jq .token | tr -d '"')
