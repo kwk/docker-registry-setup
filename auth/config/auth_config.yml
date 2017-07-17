@@ -29,7 +29,7 @@ ldap_auth:
   # bind_password_file: /tmp/ldap_password.txt.clean
   # User query settings. ${account} is expanded from auth request 
   base: "dc=computecanada,dc=ca"
-  filter: "(&(uid=${account})(objectClass=dc=computecanada,dc=ca))"
+  filter: "(&(uid=${account})(objectClass=person))"
 
 users:
   # Password is specified as a BCrypt hash. Use htpasswd -B to generate.
