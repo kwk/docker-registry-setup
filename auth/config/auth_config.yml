@@ -20,16 +20,16 @@ token:
 # Authentication is performed by first binding to the server, looking up the user entry
 # by using the specified filter, and then re-binding using the matched DN and the password provided.
 ldap_auth:
-  addr: "ldap:389"
+  addr: "ldaps://ldap-sn-slave1.computecanada.ca"
   #tls: true
   # In case bind DN and password is required for querying user information,
   # specify them here. Plain text password is read from the file.
-  bind_dn: "uid=serviceaccount,ou=it,dc=example,dc=com"
+  # bind_dn: "uid=serviceaccount,ou=it,dc=example,dc=com"
   # Make sure you remove newlines and carriage returns from the password file.
-  bind_password_file: /tmp/ldap_password.txt.clean
+  # bind_password_file: /tmp/ldap_password.txt.clean
   # User query settings. ${account} is expanded from auth request 
-  base: "ou=musicians,dc=example,dc=com"
-  filter: "(&(uid=${account})(objectClass=organizationalPerson))"
+  base: "dc=computecanada,dc=ca"
+  filter: "(&(uid=${account})(objectClass=dc=computecanada,dc=ca))"
 
 users:
   # Password is specified as a BCrypt hash. Use htpasswd -B to generate.
