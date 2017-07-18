@@ -31,25 +31,13 @@ ldap_auth:
   base: "dc=computecanada,dc=ca"
   filter: "(uid=${account})"
 
-users:
-  # Password is specified as a BCrypt hash. Use htpasswd -B to generate.
-  "admin":
-    password: "$2y$05$LO.vzwpWC5LZGqThvEfznu8qhb5SGqvBSWY1J3yZ4AxtMRZ3kN5jC"  # badmin
-  "test":
-    password: "$2y$05$WuwBasGDAgr.QCbGIjKJaep4dhxeai9gNZdmBnQXqpKly57oNutya"  # 123
   
 acl:
-  # Admin has full access to everything.
-  - match: {account: "admin"}
-    actions: ["*"]
-  
-  # User "user" can pull stuff.
-  - match: {account: "test"}
-    actions: ["pull"]
     
   # This will allow authenticated users to pull/push
   - match:
       account: /.+/
+      name: "${account}/*"
     actions: ['*']
   
   # The user "serviceaccount" (from LDAP) may not perform any docker actions
