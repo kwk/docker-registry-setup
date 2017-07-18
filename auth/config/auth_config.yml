@@ -16,6 +16,10 @@ token:
   issuer: "Acme auth server"  # Must match issuer in the Registry config.
   expiration: 900
 
+# This is for access to the public namespace. Anyone may access this folder so long as they have access. 
+users: 
+  "": {} # this allows anonymous access to the server.
+
 # LDAP authentication.
 # Authentication is performed by first binding to the server, looking up the user entry
 # by using the specified filter, and then re-binding using the matched DN and the password provided.
@@ -39,7 +43,18 @@ acl:
       account: /.+/
       name: "${account}/*"
     actions: ['*']
-  
+ 
+  - match: 
+      account: ""
+      name: "public/*"
+    actions: ["pull"]
+    comment: "Allow access to pull on public namespace"
+
+  - match:
+      name: "public/*"
+    actions: ['*'] 
+    comment: "Allow all logged in users to access the public namespace"
+
   # The user "serviceaccount" (from LDAP) may not perform any docker actions
   # like push or pull.
   - match: {account: "serviceaccount"}
