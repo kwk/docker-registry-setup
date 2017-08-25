@@ -8,7 +8,7 @@ storage:
     filesystem:
         rootdirectory: /var/lib/registry
 http:
-    addr: :5000
+    addr: :443
     headers:
         X-Content-Type-Options: [nosniff]
     tls:
@@ -21,7 +21,7 @@ health:
     threshold: 3
 auth:
   token:
-    realm: "https://0.0.0.0:5001/auth"
+    realm: "https://registry.c3tp.ca:5001/auth"
     service: "my.docker.registry"
     issuer: "Acme auth server"
     rootcertbundle: /certs/auth.crt

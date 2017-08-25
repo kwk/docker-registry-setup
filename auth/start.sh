@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Copy over certificates to correct place and update certificate storage
-find "/config/ldap_certificates" -type f -exec cp -fv {} /usr/local/share/ca-certificates/ \;
-update-ca-certificates
+find "/config/ldap_certificates" -type f -exec cp -fv {} /etc/ssl/certs/ \;
+#update-ca-certificates
 
 # Replace newline and carriage returns in password file
 cat /config/ldap_password.txt | tr -d '\r\n' > /tmp/ldap_password.txt.clean
@@ -14,4 +14,5 @@ if [ -f $CONF_PATH.custom ]; then
 fi
 
 # Start the auth server
-/auth_server -v=5 -alsologtostderr=true -log_dir=/logs $CONF_PATH
+/docker_auth/auth_server -v=5 -alsologtostderr=true -log_dir=/logs $CONF_PATH
+
