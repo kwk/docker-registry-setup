@@ -14,4 +14,4 @@ if [ -f $CONF_PATH.custom ]; then
 fi
 
 # Start the auth server
-/auth_server -v=5 -alsologtostderr=true -log_dir=/logs $CONF_PATH
+/docker_auth/auth_server -v=5 -alsologtostderr=true -log_dir=/logs $CONF_PATH
