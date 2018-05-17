@@ -29,7 +29,7 @@ you can read more about the Docker v2 registry authorization process.
 
 # How are authentication and authorization configured
 
-**NOTE** Remember, that *authentication* ensures that you are who you claim t
+**NOTE** Remember, that *authentication* ensures that you are who you claim to
 be. *Authorization* on the other hand defines rules of what somebody is
 (dis)allowed to do.
 
