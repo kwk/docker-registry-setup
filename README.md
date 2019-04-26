@@ -222,11 +222,11 @@ curl -k --dump-header $respHeader $registryURL
 # Extract the realm, the service, and the scope from the Www-Authenticate header
 wwwAuth=$(cat $respHeader | grep "Www-Authenticate")
 realm=$(echo $wwwAuth | grep -o '\(realm\)="[^"]*"' | cut -d '"' -f 2)
-service=$(echo $wwwAuth | grep -o '\(service\)="[^"]*"' | cut -d '"' -f 2)
+service=$(echo $wwwAuth | grep -o '\(service\)="[^"]*"' | cut -d '"' -f 2 | sed 's/ /%20/g')
 scope=$(echo $wwwAuth | grep -o '\(scope\)="[^"]*"' | cut -d '"' -f 2)
 
 # Build the URL to query the auth server
-authURL="$realm?service=$service&scope=$scope"
+authURL="$realm?service=$service&scope=$scope$account=mozart"
 
 # Query the auth server to get a token
 token=$(curl -ks -H "Authorization: Basic $(echo -n "mozart:password" | base64)" "$authURL")
